@@ -94,7 +94,7 @@ with st.container():
     st.markdown('''
     <div class="upload-box">
         <div style="font-size: 1rem; color: #dddddd; margin-bottom: 20px;">
-            🎶 This tool uses AI to classify music genres based on audio features. Upload a WAV file to get started.
+            🎶 This tool uses AIML and FFT to classify music genres based on audio features. Upload a WAV file to get started.
         </div>
     ''', unsafe_allow_html=True)
 
