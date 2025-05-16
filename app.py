@@ -145,7 +145,10 @@ if uploaded_file is not None:
 # ----------------- FOOTER -----------------
 st.markdown('<div class="footer">built with love for all the music lovers ❤️</div>', unsafe_allow_html=True)
 
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> b17d31c08f640c0905ecbf1d88dbf8a7a4476f0e
