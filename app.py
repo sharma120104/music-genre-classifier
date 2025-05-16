@@ -143,4 +143,5 @@ if uploaded_file is not None:
     os.remove(temp_path)
 
 # ----------------- FOOTER -----------------
-st.markdown('<div class="footer">built with love for all the music lovers ❤️</div>', unsafe_allow_html=True)e for all the music lovers ❤️</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">built with love for all the music lovers ❤️</div>', unsafe_allow_html=True)
+
