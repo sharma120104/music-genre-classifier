@@ -21,52 +21,12 @@ st.markdown("""
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
-    .title {
-        font-size: 3rem;
-        font-weight: bold;
-        text-align: center;
-        margin-top: 40px;
-        margin-bottom: 10px;
-        color: #ffffff;
-    }
-    .subtitle {
-        font-size: 1.2rem;
-        text-align: center;
-        margin-bottom: 30px;
-        color: #f0f0f0;
-    }
-    .upload-box {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 30px;
-        text-align: center;
-        margin: auto;
-        width: 60%;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-    .footer {
-        margin-top: 50px;
-        text-align: center;
-        color: #cccccc;
-        font-size: 0.9rem;
-    }
-    .result-box {
-        background-color: rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        border-radius: 12px;
-        margin-top: 20px;
-        text-align: center;
-        font-size: 1.3rem;
-        font-weight: 500;
-    }
-    .stButton>button {
-        background-color: #ff4b4b;
-        color: white;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 10px 20px;
-        border: none;
-    }
+    .title { font-size: 3rem; font-weight: bold; text-align: center; margin-top: 40px; color: #ffffff; }
+    .subtitle { font-size: 1.2rem; text-align: center; margin-bottom: 30px; color: #f0f0f0; }
+    .upload-box { background-color: rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 30px; text-align: center; width: 60%; margin: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .footer { margin-top: 50px; text-align: center; color: #cccccc; font-size: 0.9rem; }
+    .result-box { background-color: rgba(0, 0, 0, 0.2); padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center; font-size: 1.3rem; font-weight: 500; }
+    .stButton>button { background-color: #ff4b4b; color: white; font-weight: bold; border-radius: 10px; padding: 10px 20px; border: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -75,62 +35,41 @@ st.markdown('<div class="title">🎧 Music Genre Classifier</div>', unsafe_allow
 st.markdown('<div class="subtitle">Sit back, relax, and enjoy the prediction 🎶</div>', unsafe_allow_html=True)
 
 # ----------------- UPLOAD SECTION -----------------
-with st.container():
-    st.markdown('''
-    <div class="upload-box">
-        🎶 This tool uses AIML and FFT to classify music genres based on audio features. Upload a WAV file to get started.
-    </div>
-    ''', unsafe_allow_html=True)
+st.markdown('<div class="upload-box">🎶 Upload a WAV file to classify its music genre using AIML and FFT.</div>', unsafe_allow_html=True)
+uploaded_file = st.file_uploader("", type=["wav"])
 
-    uploaded_file = st.file_uploader("", type=["wav"])
-
-# ----------------- PROCESSING -----------------
 if uploaded_file is not None:
     temp_path = "temp.wav"
     with open(temp_path, "wb") as f:
         f.write(uploaded_file.read())
 
-    # 🎧 Play audio (only once)
     st.audio(temp_path)
 
-    # Optional FFT Visualization Checkbox
     if st.checkbox("📊 Show Time & Frequency Domain Plots"):
         try:
             sr, data = wavfile.read(temp_path)
-            if len(data.shape) == 2:
+            if data.ndim == 2:
                 data = data.mean(axis=1)
 
-            duration = len(data) / sr
-            time = np.linspace(0., duration, len(data))
+            time = np.linspace(0, len(data) / sr, num=len(data))
 
-            # Time-Domain Plot
-            fig1, ax1 = plt.subplots(figsize=(10, 3))
-            ax1.plot(time, data, color='cyan', linewidth=0.5)
-            ax1.set_title("Time-Domain Signal", fontsize=12)
-            ax1.set_xlabel("Time (s)")
-            ax1.set_ylabel("Amplitude")
-            ax1.grid(True)
+            fig1, ax1 = plt.subplots()
+            ax1.plot(time, data, color='cyan')
+            ax1.set_title("Time-Domain Signal")
             st.pyplot(fig1)
 
-            # Frequency-Domain Plot
             fft_vals = np.fft.fft(data)
-            fft_freq = np.fft.fftfreq(len(fft_vals), 1 / sr)
-            magnitude = np.abs(fft_vals)[:len(fft_vals)//2]
-            frequency = fft_freq[:len(fft_vals)//2]
+            magnitude = np.abs(fft_vals[:len(fft_vals) // 2])
+            frequency = np.fft.fftfreq(len(fft_vals), 1 / sr)[:len(fft_vals) // 2]
 
-            fig2, ax2 = plt.subplots(figsize=(10, 3))
-            ax2.plot(frequency, magnitude, color='magenta', linewidth=0.7)
-            ax2.set_title("Frequency-Domain (FFT)", fontsize=12)
-            ax2.set_xlabel("Frequency (Hz)")
-            ax2.set_ylabel("Magnitude")
-            ax2.set_xlim(0, sr/2)
-            ax2.grid(True)
+            fig2, ax2 = plt.subplots()
+            ax2.plot(frequency, magnitude, color='magenta')
+            ax2.set_title("Frequency-Domain (FFT)")
             st.pyplot(fig2)
 
         except Exception as e:
             st.error(f"⚠️ Error plotting FFT: {e}")
 
-    # Prediction Block
     try:
         features = extract_features(temp_path).reshape(1, -1)
         model = joblib.load("model/genre_classifier.pkl")
@@ -139,9 +78,8 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"⚠️ Error during prediction: {e}")
 
-    # Cleanup
     os.remove(temp_path)
 
 # ----------------- FOOTER -----------------
-st.markdown('<div class="footer">built with love for all the music lovers ❤️</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer">Built with ❤️ for music lovers</div>', unsafe_allow_html=True)
 
